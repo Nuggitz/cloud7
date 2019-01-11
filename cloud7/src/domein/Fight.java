@@ -10,5 +10,6 @@ public class Fight {
         this.player = player;
         this.boss = boss;
         player.setHits(0);
+        boss.setHits(0);
     }
 }

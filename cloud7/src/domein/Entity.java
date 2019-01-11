@@ -4,28 +4,38 @@ import exceptions.*;
 
 
 public abstract class Entity {
-    protected double totalHp, health, addHealth;
-    protected double damage, addDamage;
+    protected double totalHp, health;
+    protected double damage;
     protected int level;
-    protected double crit;
+    protected double crit, blockC, critD;
     protected Hit lastHit;
-    protected int hits = 0;
+    protected int hits;
+    protected double levelMod;//health = level * levelMod
+    protected boolean block;
+    protected String imgURL;
     
     public Entity(int level) {
         controleerLevel(level);
         this.level = level;
-        double hp = Math.pow(level, 2) + addHealth;
-        double dmg = Math.pow(level, .2) + addDamage;
+        levelMod = 5;
+        double hp = levelMod*level;
+        double dmg = (levelMod*level)/10;
         controleerHealth(hp);
-        this.health = hp;
+        health = hp;
         controleerDamage(dmg);
-        this.damage = dmg;
-        crit = 15;
+        damage = dmg;
+        crit = 0;
+        totalHp = health;
+        lastHit = new Hit(0);
+        block = false;
+        hits = 0;
+        blockC = 75;
+        imgURL = "/images/questionMark.png";
     }
     
     private void calcStats() {
-        this.health = Math.pow(level, 2) + addHealth;
-        this.damage = Math.pow(level, .2) + addDamage;
+        health = levelMod*level;
+        damage = (levelMod*level)/10;
     }
     
     private void controleerHealth(double health) {
@@ -116,22 +126,6 @@ public abstract class Entity {
     public void hit() {
         this.hits+=1;
     }
-    
-    public void upCrit(double val) {
-        this.setCrit(this.getCrit() + val);
-    }
-    
-    public void upHealth(double val) {
-        double hp = this.getHealth()*(val/100);
-        this.setHealth(this.health + hp);
-        this.addHealth += hp;
-    }
-    
-    public void upDamage(double val) {
-        double dam = this.getDamage()*(val/100);
-        this.setDamage(this.damage+dam);
-        this.addDamage += dam;
-    }
 
     public double getTotalHp() {
         return totalHp;
@@ -139,5 +133,49 @@ public abstract class Entity {
 
     public void setTotalHp(double totalHp) {
         this.totalHp = totalHp;
+    }
+    
+    public int getHits() {
+        return hits;
+    }
+
+    public void setHits(int hits) {
+        this.hits = hits;
+    }
+    
+    public void block() {
+        this.block = true;
+    }
+
+    public boolean isBlock() {
+        return block;
+    }
+
+    public void setBlock(boolean block) {
+        this.block = block;
+    }
+
+    public double getBlockC() {
+        return blockC;
+    }
+
+    public void setBlockC(double blockC) {
+        this.blockC = blockC;
+    }
+
+    public double getCritD() {
+        return critD;
+    }
+
+    public void setCritD(double critD) {
+        this.critD = critD;
+    }
+
+    public String getImgURL() {
+        return imgURL;
+    }
+
+    public void setImgURL(String imgURL) {
+        this.imgURL = imgURL;
     }
 }

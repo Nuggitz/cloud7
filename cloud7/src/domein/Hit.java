@@ -5,10 +5,14 @@ import java.util.Random;
 
 public class Hit {
     
-    private double damage;
-    private boolean crit = false;
+    private double damage, blockC;
+    private boolean crit;
+    private boolean block;
     
     public Hit(Entity en1, Entity en2) {
+        this.crit = false;
+        this.block = en2.isBlock();
+        this.blockC = en2.getBlockC();
         this.crit=calcCrit(en1.getCrit());
         this.damage = calcDamage(en1.getDamage());
         en2.damage(this.damage);
@@ -48,6 +52,25 @@ public class Hit {
     }
     
     private double calcDamage(double damage) {
-        return crit ? damage*2 : damage;
+        double dam;
+        if(crit) {
+            dam = damage*2;
+            if(block)
+                dam *=(1-(blockC/100));
+        }
+        else {
+            dam = damage;
+            if(block)
+                dam *=(1-(blockC/100));
+        }
+        return dam;
+    }
+
+    public boolean isBlock() {
+        return block;
+    }
+
+    public void setBlock(boolean block) {
+        this.block = block;
     }
 }

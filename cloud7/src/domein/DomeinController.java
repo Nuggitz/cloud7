@@ -8,27 +8,30 @@ public class DomeinController {
     private int fights = 0;
     private Fight fight;
     private Dummie dummie;
+    private int speed;
     
     public DomeinController() {
-        this.player = new Player(2);
+        this.player = new Player(1);
+        this.speed = 5;
     }
     
     public void newFight() {
-        this.fights+=1;
-        bossLevel++;
+        fights+=1;
+        bossLevel = player.getPointsSpent();
         currentBoss = new Boss(bossLevel);
-        currentBoss.setLastHit(new Hit(0));
-        this.fight = new Fight(player,currentBoss);
+        fight = new Fight(player,currentBoss);
     }
     
-    public boolean damagePlayer() {
+    public boolean[] damagePlayer() {
         Hit hit = new Hit(currentBoss, player);
-        return hit.isCrit();
+        boolean[] hitA = {hit.isCrit(), hit.isBlock()};
+        return hitA;
     }
     
-    public boolean playerHit() {
+    public boolean[] playerHit() {
         Hit hit = new Hit(player, currentBoss);
-        return hit.isCrit();
+        boolean[] hitA = {hit.isCrit(), hit.isBlock()};
+        return hitA;
     }
     
     public String player() {
@@ -63,84 +66,99 @@ public class DomeinController {
     }
     
     public void levelBoss() {
-        currentBoss.setLevel(this.player.getLevel());
+        currentBoss.levelUp(this.player.getLevel());
     }
     
-    public int levelPlayer() {
+    // temporary
+    public int levelPlayer(int levels) {
         int l;
-        double hits = (double)player.getHits();
-        System.out.printf("\nworst %.2f%n", currentBoss.getTotalHp()/(player.getDamage()*1.0));
-        System.out.printf("worse %.2f%n", currentBoss.getTotalHp()/(player.getDamage()*1.25));
-        System.out.printf("bad %.2f%n", currentBoss.getTotalHp()/(player.getDamage()*1.5));
-        System.out.printf("normal %.2f%n", currentBoss.getTotalHp()/(player.getDamage()*1.75));
-        System.out.printf("good %.2f%n", currentBoss.getTotalHp()/(player.getDamage()*2.0));
-        System.out.printf("very good %.2f%n", currentBoss.getTotalHp()/(player.getDamage()*2.25));
-        System.out.printf("amazing %.2f%n", currentBoss.getTotalHp()/(player.getDamage()*2.5));
+        int hits = player.getHits();
+        System.out.printf("\nworst %d%n", (int)Math.ceil(currentBoss.getTotalHp()/(player.getDamage()*1.0)));
+        System.out.printf("worse %d%n", (int)Math.ceil(currentBoss.getTotalHp()/(player.getDamage()*1.25)));
+        System.out.printf("bad %d%n", (int)Math.ceil(currentBoss.getTotalHp()/(player.getDamage()*1.5)));
+        System.out.printf("normal %d%n", (int)Math.ceil(currentBoss.getTotalHp()/(player.getDamage()*1.75)));
+        System.out.printf("good %d%n", (int)Math.ceil(currentBoss.getTotalHp()/(player.getDamage()*2.0)));
+        System.out.printf("very good %d%n", (int)Math.ceil(currentBoss.getTotalHp()/(player.getDamage()*2.25)));
+        System.out.printf("amazing %d%n", (int)Math.ceil(currentBoss.getTotalHp()/(player.getDamage()*2.5)));
         System.out.println();
-        if(hits >= currentBoss.getTotalHp()/(player.getDamage()*1.0) || player.getHits() == 0)
+        if(hits >= (int)Math.ceil(currentBoss.getTotalHp()/(player.getDamage()*1.0)) || player.getHits() == 0)
             l = 1;
-        else if(hits >= currentBoss.getTotalHp()/(player.getDamage()*1.25))
+        else if(hits >= (int)Math.ceil(currentBoss.getTotalHp()/(player.getDamage()*1.25)))
             l = 2;
-        else if(hits >= currentBoss.getTotalHp()/(player.getDamage()*1.5))
+        else if(hits >= (int)Math.ceil(currentBoss.getTotalHp()/(player.getDamage()*1.5)))
             l = 3;
-        else if(hits >= currentBoss.getTotalHp()/(player.getDamage()*1.75))
+        else if(hits >= (int)Math.ceil(currentBoss.getTotalHp()/(player.getDamage()*1.75)))
             l = 4;
-        else if(hits >= currentBoss.getTotalHp()/(player.getDamage()*2.0))
+        else if(hits >= (int)Math.ceil(currentBoss.getTotalHp()/(player.getDamage()*2.0)))
             l = 5;
-        else if(hits >= currentBoss.getTotalHp()/(player.getDamage()*2.25))
+        else if(hits >= (int)Math.ceil(currentBoss.getTotalHp()/(player.getDamage()*2.25)))
             l = 6;
-        else if(hits >= currentBoss.getTotalHp()/(player.getDamage()*2.5))
+        else if(hits >= (int)Math.ceil(currentBoss.getTotalHp()/(player.getDamage()*2.5)))
             l = 7;
         else
             l = 10;
         //player.levelUp(l);
-        player.levelUp(1);
-        addPoint(l);
+        player.levelUp(levels);
+        player.addPoint(l);
         return l;
+    }
+    
+    /*
+    0 for skip
+    1 for crit
+    2 for health
+    3 for damage
+    4 for level
+    */
+    public String[] upPlayerStats(int stat) {
+        return player.upStats(stat);
+    }
+    
+    public double[] playerLevelUpStats() {
+        return player.getLevelUpStats();
     }
     
     public int playerHits() {
         return player.getHits();
     }
     
-    /*
-    0 for crit
-    1 for health
-    2 for damage
-    */
-    public String[] upStats(int stat) {
-        double crit = 5, health = 25, damage = 50;
-        String[] stats = {"nothing","0"};
-        switch(stat) {
-            case 0:
-                break;
-            case 1:
-                player.upCrit(crit);
-                stats[0] = "crit";
-                stats[1] = Double.toString(crit);
-                addPoint(-1);
-                return stats;
-            case 2: 
-                player.upHealth(health);
-                stats[0] = "health";
-                stats[1] = Double.toString(health);
-                addPoint(-1);
-                return stats;
-            case 3: 
-                player.upDamage(damage);
-                stats[0] = "damage";
-                stats[1] = Double.toString(damage);
-                addPoint(-1);
-                return stats;
-        }
-        return stats;
-    }
-    
-    public void addPoint(int p) {
-        player.setPoints(player.getPoints() + p);
-    }
-    
     public int getPoints() {
         return player.getPoints();
+    }
+    
+    public void playerBlock() {
+        player.block();
+    }
+    
+    public boolean isPlayerBlock() {
+        return player.isBlock();
+    }
+    
+    public void playerBlocked() {
+        player.setBlock(false);
+    }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
+    }
+    
+    public void setPlayerImg(String img) {
+        player.setImgURL(img);
+    }
+    
+    public String getPlayerImg() {
+        return player.getImgURL();
+    }
+    
+    public void setBossImg(String img) {
+        currentBoss.setImgURL(img);
+    }
+    
+    public String getBossImg() {
+        return currentBoss.getImgURL();
     }
 }
